@@ -1,0 +1,13 @@
+Option Explicit
+
+Function ISIN(cell As Range, lookUpRange As Range) As Boolean
+    Dim element As Range
+    For Each element In lookUpRange.Cells
+        If cell.Value = element.Value Then
+            ISIN = True
+            Exit Function
+        End If
+    Next element
+    
+    ISIN = False
+End Function
