@@ -1,0 +1,5 @@
+Option Explicit
+
+Function YearAndQuarter(d As Date)
+    YearAndQuarter = DatePart("yyyy", d) & " " & "Q" & DatePart("q", d)
+End Function
