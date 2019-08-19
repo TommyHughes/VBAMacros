@@ -1,0 +1,8 @@
+Option Explicit
+
+Function GetLastColumnInRow(wbPath As String, sheetName As String, Row As Long) As Long
+    Application.ScreenUpdating = False
+    Dim wb As Workbook: Set wb = Application.Workbooks.Open(Filename:=wbPath, ReadOnly:=True, Notify:=True)
+    GetLastColumnInRow = wb.Sheets(sheetName).Cells(Row, Columns.Count).End(xlToLeft).Column
+    Application.ScreenUpdating = True
+End Function
