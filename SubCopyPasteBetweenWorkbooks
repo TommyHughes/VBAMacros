@@ -1,0 +1,60 @@
+Option Explicit
+
+Sub CopyPasteBetweenWorkbooks(sWbName As String, sSheetName As String, sFirstColumn As Long, sLastColumn As Long, _
+dWbName As String, dSheetName As String, dFirstColumn As Long, dLastColumn As Long, _
+Optional deleteExisting As Boolean = True, Optional sFirstRow As Long = 2, Optional dFirstRow As Long = 2, _
+Optional coverFormulas As Boolean = False, Optional dFormFirstCol As Long = 1, Optional dFormLastCol As Long = 2, _
+Optional SpecialPaste As XlPasteType = xlPasteAll)
+
+Application.ScreenUpdating = False
+
+    Dim s As Worksheet: Set s = Application.Workbooks(sWbName).Worksheets(sSheetName) 'Set s to source sheet in source workbook.
+    Dim d As Worksheet: Set d = Application.Workbooks(dWbName).Worksheets(dSheetName) 'Set d to destination worksheet in destination workbook.
+    Dim sLastRow As Long: Let sLastRow = GetLastRowInColumns(sWbName, sSheetName, sFirstColumn, sLastColumn) 'Find row number for the longest column in the source data.
+    Dim dLastRow As Long: Let dLastRow = GetLastRowInColumns(dWbName, dSheetName, dFirstColumn, dLastColumn) 'Find row number the longest column in the destination data.
+    Dim sSelection As Range
+    
+    
+    ' Set sSelection to the range containing data that is to be copied in s.
+    
+    With s
+    Set sSelection = .Range(.Cells(sFirstRow, sFirstColumn), .Cells(sLastRow, sLastColumn))
+    End With
+    
+    
+    'If deleteExisting is False then we will assume that we paste data under existing data in our destination workbook.
+    
+    If deleteExisting = False Then
+        sSelection.Copy 'copy the select data from the source...
+        d.Range(d.Cells(dLastRow + 1, dFirstColumn), d.Cells(dLastRow + 1, dFirstColumn)).PasteSpecial (SpecialPaste) '...and paste it into the select section in destination.
+    
+    'If deleteExisting is True we assume that the data in destination will be deleted and replaced by source data.
+    
+    Else
+        With d
+            .Range(.Cells(dFirstRow, dFirstColumn), .Cells(dLastRow, dLastColumn)).ClearContents 'Delete existing data in destination workbook.
+        End With
+        
+        sSelection.Copy
+        d.Range(d.Cells(dFirstRow, dFirstColumn), d.Cells(dFirstRow, dFirstColumn)).PasteSpecial (SpecialPaste)
+    End If
+    
+    
+    'If coverFormulas is true, copy/paste formulas in d so that they fill only rows with data.
+    
+    If coverFormulas = True Then
+        Dim dDataLastRowAftPaste As Long, dFormLastRow As Long
+        dDataLastRowAftPaste = GetLastRowInColumns(dWbName, dSheetName, dFirstColumn, dLastColumn) ' Set dDataLastRowAftPaste to the row # of longest column in the data.
+        dFormLastRow = GetLastRowInColumns(dWbName, dSheetName, dFormFirstCol, dFormLastCol) ' Set dFormLastRow to the row # of the longest column in the formulas.
+        
+        
+        'Paste the columns with formulas so that they fill only rows adjacent to data.
+        
+        With d
+            .Range(.Cells(dFirstRow + 1, dFormFirstCol), .Cells(dFormLastRow, dFormLastCol)).ClearContents
+            .Range(.Cells(dFirstRow, dFormFirstCol), .Cells(dFirstRow, dFormLastCol)).Copy
+            .Range(.Cells(dFirstRow + 1, dFormFirstCol), .Cells(dDataLastRowAftPaste, dFormLastCol)).PasteSpecial
+        End With
+    End If
+
+End Sub
