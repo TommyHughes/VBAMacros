@@ -1,0 +1,17 @@
+Option Explicit
+
+Function GetLastRowInColumns(wbName As String, sheetName As String, firstColumn As Long, lastColumn As Long)
+    Dim ws As Worksheet: Set ws = Application.Workbooks(wbName).Worksheets(sheetName)
+    Dim i As Long, j As Long
+    Dim lastRow As Long: Let lastRow = ws.Cells(Rows.Count, firstColumn).End(xlUp).Row
+    
+    For i = firstColumn To lastColumn
+        j = ws.Cells(Rows.Count, i).End(xlUp).Row
+        If j > lastRow Then
+            lastRow = j
+        End If
+    Next i
+    
+    GetLastRowInColumns = lastRow
+    
+End Function
