@@ -1,0 +1,9 @@
+Option Explicit
+
+Sub OpenWorkbooks(ByRef filePaths() As String)
+    Dim i As Long: Let i = 0
+    
+    For i = 0 To UBound(filePaths) - 1
+        Application.Workbooks.Open filePaths(i)
+    Next i
+End Sub
