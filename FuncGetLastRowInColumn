@@ -1,0 +1,8 @@
+Option Explicit
+
+Function GetLastRowInColumn(wbName As String, sheetName As String, Col As Long) As Long
+    Application.ScreenUpdating = False
+    Dim ws As Workbook: Set ws = Application.Workbooks(wbName).Worksheets(sheetName)
+    GetLastRowInColumn = ws.Cells(Rows.Count, Col).End(xlUp).Row
+    Application.ScreenUpdating = True
+End Function
