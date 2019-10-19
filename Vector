@@ -1,0 +1,158 @@
+'This is a vector class that was abandoned. I discovered using ranges was far easier.
+'I am including this for the proof of experimentiation.
+
+Option Explicit
+
+Private vName As String
+Private vElements() As Variant
+Private vLength As Variant
+Private vWriteRange As Range
+Private vReadRange As Range
+
+Property Get Name() As String
+Name = vName
+End Property
+
+Property Let Name(n As String)
+vName = n
+End Property
+
+Property Get WriteRange() As Range
+WriteRange = vWriteRange
+End Property
+
+Property Let WriteRange(r As Range)
+vWriteRange = r
+End Property
+
+Property Get ReadRange()
+ReadRange = vReadRange
+End Property
+
+Property Set ReadRange(r As Range)
+vReadRange = r
+End Property
+
+Property Get Length() As Variant
+Length = vLength
+End Property
+
+Public Function SetLengthP(le As Variant)
+ReDim Preserve vElements(1 To le)
+vLength = UBound(Me.Elements)
+End Function
+
+Public Function SetLength(le As Variant)
+ ReDim vElements(1 To le)
+ vLength = UBound(Me.Elements)
+End Function
+
+Property Get Elements() As Variant
+Elements = vElements
+End Property
+
+Property Let Elements(x As Variant)
+If TypeName(x) = "Range" Then
+  vElements = CleanElements(x.Value)
+ElseIf TypeName(x) = "Variant()" Then
+  vElements = CleanElements(x)
+Else
+  MsgBox Prompt:="Please supply a range object (with more than one cell) or a variant array"
+End If 'TypeName(x) = "Range"
+vLength = UBound(Me.Elements)
+End Property
+
+Private Function NumArrayDimensions(Arr As Variant) As Integer
+Dim Ndx As Integer
+Dim Res As Integer
+On Error Resume Next
+Do
+  Ndx = Ndx + 1
+  Res = UBound(Arr, Ndx)
+Loop Until Err.Number <> 0
+Err.Clear
+NumArrayDimensions = Ndx - 1
+End Function
+
+Private Function CleanElements(x As Variant) As Variant()
+Dim Ndx As Integer
+Ndx = NumArrayDimensions(x)
+If Ndx > 2 Or Ndx = 0 Then
+  MsgBox Prompt:="ERROR: Vector.Elements must be a a one-dimensional non-empty array"
+ElseIf Ndx = 2 Then
+Dim y() As Variant
+Dim i As Long
+  If UBound(x, 1) > 1 And UBound(x, 2) > 1 Then
+   ReDim Preserve x(1 To UBound(x, 1) - LBound(x, 1) + 1, 1 To 1)
+   For i = 1 To UBound(x, 1) - LBound(x, 1) + 1
+    ReDim Preserve y(1 To i)
+    y(i) = x(i, 1)
+   Next i
+   CleanElements = y
+  ElseIf UBound(x, 2) = 1 Then
+   For i = 1 To UBound(x, 1) - LBound(x, 1) + 1
+    ReDim Preserve y(1 To i)
+    y(i) = x(i, 1)
+   Next i
+   CleanElements = y
+  ElseIf UBound(x, 1) = 1 Then
+   For i = 1 To UBound(x, 2) - LBound(x, 2) + 1
+    ReDim Preserve y(1 To i)
+    y(i) = x(1, i)
+   Next i
+   CleanElements = y
+  End If 'UBound(x,2) > 1
+Else
+  ReDim Preserve x(1 To UBound(x) - LBound(x) + 1)
+  CleanElements = x
+End If 'NumArrayDimensions(x) > 1
+End Function
+'Add how to deal with blanks and NAs
+Public Function Sum() As Variant
+On Error GoTo ErrHandler:
+Dim temp As Variant
+Dim element As Variant
+  For Each element In Me.Elements
+   temp = temp + element
+  Next
+Sum = temp
+
+ErrHandler:
+ temp = temp + 0
+Resume Next
+End Function
+
+Public Function PrintElements()
+Dim element As Variant
+For Each element In Me.Elements
+  Debug.Print element
+Next
+End Function
+' Add how to deal with blanks and NAs
+Public Function Avg() As Double
+Avg = Me.Sum / Me.Length
+End Function
+' Add how to deal with blanks and NAs
+Public Function ScalarMultiply(c As Variant) As Variant()
+Dim i As Long
+Dim n As Variant
+Dim multArr() As Variant
+n = Me.Length
+ReDim multArr(1 To n)
+For i = 1 To n
+ multArr(i) = c * Me.Elements(i)
+Next i
+ScalarMultiply = multArr()
+End Function
+
+Public Function Count(Optional unique As Boolean = False, Optional numeric As Boolean = False) As Long
+ If unique = False And numeric = False Then 'count all nonempty
+  
+ ElseIf unique = True And numeric = False Then 'count all nonempty
+  
+ ElseIf unique = False And numeric = True Then 'count numeric nonempty
+  
+ ElseIf unique = True And numeric = True Then 'count numeric, nonempty, non-repeating
+  
+ End If
+End Function
